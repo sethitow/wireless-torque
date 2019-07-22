@@ -2,8 +2,12 @@ MPY_CROSS_DIR = modules/circuitpython/mpy-cross
 MPY_CROSS = $(MPY_CROSS_DIR)/mpy-cross
 SRC := $(shell find src -type f -regex ".*\.py")
 TARGETS = $(shell find src -type f -regex ".*\.py" | sed "s+src/+build/+g" | sed "s/.py/.mpy/g")
+TARGET_DIR = /Volumes/CIRCUITPY
 
 all: $(TARGETS)
+
+flash: all
+	cp -r build/* $(TARGET_DIR)
 
 build/%.mpy: src/%.py 
 	mkdir -p $(shell dirname $@)
