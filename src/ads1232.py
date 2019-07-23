@@ -31,11 +31,9 @@ class ADS1232:
 
     def raw_read(self):
 
-        print("Waiting for value to go high")
         while self._data_out.value:
             pass
 
-        print("Waiting for value to go low")
         while not self._data_out.value:
             pass
 
