@@ -4,10 +4,13 @@ SRC := $(shell find src -type f -regex ".*\.py")
 TARGETS = $(shell find src -type f -regex ".*\.py" | sed "s+src/+build/+g" | sed "s/.py/.mpy/g")
 TARGET_DIR = /Volumes/CIRCUITPY
 
-all: $(TARGETS)
+all: $(TARGETS) build/main.py
 
 flash: all
-	cp -r build/* $(TARGET_DIR)
+	cp -rf build/* $(TARGET_DIR)
+
+build/main.py: src/main.py
+	cp $< $@
 
 build/%.mpy: src/%.py 
 	mkdir -p $(shell dirname $@)
