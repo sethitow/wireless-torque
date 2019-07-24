@@ -22,6 +22,7 @@ $(MPY_CROSS):
 copy-libs:
 	cp -r modules/Adafruit_CircuitPython_ADXL34x/adafruit_adxl34x.py src/lib
 	cp -r modules/Adafruit_CircuitPython_BusDevice/adafruit_bus_device src/lib
+	cp -r modules/Adafruit_CircuitPython_BLE/adafruit_ble src/lib
 
 .PHONY: ensure
 ensure:
