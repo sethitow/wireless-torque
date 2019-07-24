@@ -30,7 +30,6 @@ class ADS1232:
         self._power_down.value = True
 
     def raw_read(self):
-
         while self._data_out.value:
             pass
 
