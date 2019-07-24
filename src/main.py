@@ -49,6 +49,10 @@ accelerometer = adafruit_adxl34x.ADXL345(i2c)
 adc.reset()
 
 while True:
-    print("%f %f %f" % accelerometer.acceleration)
-    print(adc.raw_read())
-    time.sleep(1)
+
+    mux_select.value = False
+    ch1_value = adc.raw_read()
+    mux_select.value = True
+    ch2_value = adc.raw_read()
+    print("%f %f %f %d %d"% (accelerometer.acceleration[0], accelerometer.acceleration[1], accelerometer.acceleration[2], ch1_value, ch2_value))
+    time.sleep(0.2)
