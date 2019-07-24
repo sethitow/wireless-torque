@@ -7,3 +7,6 @@
 [submodule "modules/Adafruit_CircuitPython_BusDevice"]
 	path = modules/Adafruit_CircuitPython_BusDevice
 	url = https://github.com/adafruit/Adafruit_CircuitPython_BusDevice
+[submodule "modules/Adafruit_CircuitPython_BLE"]
+	path = modules/Adafruit_CircuitPython_BLE
+	url = https://github.com/adafruit/Adafruit_CircuitPython_BLE
