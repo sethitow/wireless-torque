@@ -86,7 +86,7 @@ while True:
         adc2_chara.value = ch2_value.to_bytes(4, "big")
 
     print(
-        "Accel: %f %f %f. ADC: %d %d. Battery: %fv %d%"
+        "Accel: %.2f %.2f %.2f. ADC: %d %d. Battery: %.2fv %d%%"
         % (
             accelerometer.acceleration[0],
             accelerometer.acceleration[1],
