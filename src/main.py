@@ -1,8 +1,11 @@
+import analogio
+import binascii
 import bleio
 import board
 import busio
 import digitalio
 import time
+import microcontroller
 
 import adafruit_adxl34x
 from adafruit_ble.advertising import ServerAdvertisement
@@ -10,6 +13,8 @@ from adafruit_ble.advertising import ServerAdvertisement
 import ads1232
 
 print("Running!")
+
+voltage_monitor = analogio.AnalogIn(board.VOLTAGE_MONITOR)
 
 pin_data_out = board.MISO
 pin_clock = board.SCK
@@ -54,26 +59,43 @@ adc.reset()
 
 
 battery_level_chara = bleio.Characteristic(bleio.UUID(0x2919), read=True, notify=True)
-battery_service = bleio.Service(bleio.UUID(0x180f), [battery_level_chara])
+battery_service = bleio.Service(bleio.UUID(0x180F), [battery_level_chara])
 
 adc1_chara = bleio.Characteristic(bleio.UUID(0x2A58), read=True, notify=True)
 adc2_chara = bleio.Characteristic(bleio.UUID(0x2A58), read=True, notify=True)
 adc_service = bleio.Service(bleio.UUID(0x1815), [adc1_chara, adc2_chara])
 
-# Create a peripheral and start it up.
-periph = bleio.Peripheral([battery_service, adc_service])
+device_uid = binascii.hexlify(microcontroller.cpu.uid)
+periph_name = "".join(["TORQUE-", device_uid[-6:].decode("ascii")])
+print("Starting peripherial with name: %s" % periph_name)
+periph = bleio.Peripheral([battery_service, adc_service], name=periph_name)
 periph.start_advertising()
 
 while True:
+    battery_voltage = (voltage_monitor.value * 3.3) / 65536 * 2
+    battery_soc = int(250 * (battery_voltage - 3) / 3)
 
     mux_select.value = False
     ch1_value = adc.raw_read()
-    # adc1_chara.value = ch1_value.to_bytes(3, 'big')
-    adc1_chara.value = bytes(0x00)
 
     mux_select.value = True
     ch2_value = adc.raw_read()
-    # adc2_chara.value = ch2_value.to_bytes(3, 'big')
 
-    print("%f %f %f %d %d"% (accelerometer.acceleration[0], accelerometer.acceleration[1], accelerometer.acceleration[2], ch1_value, ch2_value))
+    if periph.connected:
+        battery_level_chara.value = battery_soc.to_bytes(1, "big")
+        adc1_chara.value = ch1_value.to_bytes(4, "big")
+        adc2_chara.value = ch2_value.to_bytes(4, "big")
+
+    print(
+        "Accel: %f %f %f. ADC: %d %d. Battery: %fv %d%"
+        % (
+            accelerometer.acceleration[0],
+            accelerometer.acceleration[1],
+            accelerometer.acceleration[2],
+            ch1_value,
+            ch2_value,
+            battery_voltage,
+            battery_soc,
+        )
+    )
     time.sleep(0.2)
