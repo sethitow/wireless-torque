@@ -8,7 +8,6 @@ import time
 import microcontroller
 
 import adafruit_adxl34x
-from adafruit_ble.advertising import ServerAdvertisement
 
 import ads1232
 
