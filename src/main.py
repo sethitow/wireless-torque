@@ -1,9 +1,13 @@
-import time
+import bleio
 import board
 import busio
-import adafruit_adxl34x
-import ads1232
 import digitalio
+import time
+
+import adafruit_adxl34x
+from adafruit_ble.advertising import ServerAdvertisement
+
+import ads1232
 
 print("Running!")
 
@@ -48,11 +52,28 @@ i2c = busio.I2C(board.SCL, board.SDA)
 accelerometer = adafruit_adxl34x.ADXL345(i2c)
 adc.reset()
 
+
+battery_level_chara = bleio.Characteristic(bleio.UUID(0x2919), read=True, notify=True)
+battery_service = bleio.Service(bleio.UUID(0x180f), [battery_level_chara])
+
+adc1_chara = bleio.Characteristic(bleio.UUID(0x2A58), read=True, notify=True)
+adc2_chara = bleio.Characteristic(bleio.UUID(0x2A58), read=True, notify=True)
+adc_service = bleio.Service(bleio.UUID(0x1815), [adc1_chara, adc2_chara])
+
+# Create a peripheral and start it up.
+periph = bleio.Peripheral([battery_service, adc_service])
+periph.start_advertising()
+
 while True:
 
     mux_select.value = False
     ch1_value = adc.raw_read()
+    # adc1_chara.value = ch1_value.to_bytes(3, 'big')
+    adc1_chara.value = bytes(0x00)
+
     mux_select.value = True
     ch2_value = adc.raw_read()
+    # adc2_chara.value = ch2_value.to_bytes(3, 'big')
+
     print("%f %f %f %d %d"% (accelerometer.acceleration[0], accelerometer.acceleration[1], accelerometer.acceleration[2], ch1_value, ch2_value))
     time.sleep(0.2)
