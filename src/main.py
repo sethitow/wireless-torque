@@ -69,6 +69,7 @@ periph_name = "".join(["TORQUE-", device_uid[-6:].decode("ascii")])
 print("Starting peripherial with name: %s" % periph_name)
 periph = bleio.Peripheral([battery_service, adc_service], name=periph_name)
 periph.start_advertising()
+advertising = True
 
 while True:
     battery_voltage = (voltage_monitor.value * 3.3) / 65536 * 2
@@ -81,9 +82,13 @@ while True:
     ch2_value = adc.raw_read()
 
     if periph.connected:
+        advertising = False
         battery_level_chara.value = battery_soc.to_bytes(1, "big")
         adc1_chara.value = ch1_value.to_bytes(4, "big")
         adc2_chara.value = ch2_value.to_bytes(4, "big")
+    elif not advertising and not periph.connected:
+        periph.start_advertising()
+        advertising = True
 
     print(
         "Accel: %.2f %.2f %.2f. ADC: %d %d. Battery: %.2fv %d%%"
